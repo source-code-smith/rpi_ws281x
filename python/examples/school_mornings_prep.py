@@ -19,9 +19,9 @@ import argparse
 
 # Morning stages configuration
 BLUE = Color(0, 0, 255)
-ORANGE = Color(255, 165, 0)
-GREEN = Color(0, 255, 0)
-RED = Color(255, 0, 0)
+ORANGE = Color(50, 255, 0)
+GREEN = Color(255, 0, 0)
+RED = Color(0, 255, 0)
 
 # LED strip configuration:
 LED_COUNT      = 60      # Number of LED pixels.
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     stages.append(Morning_Prep_Stage('Bathroom', GREEN, 'G', 45, 15))
 
     initializeStages(strip, stages)
-    
+
     stages_duration = timedelta(seconds = calculateStagesDuration(stages))
     start_time = timedelta(seconds = time.time())
 
@@ -116,11 +116,15 @@ if __name__ == '__main__':
     lapsed_time = now_time - start_time
 
     try:
-        while lapsed_time <= stages_duration:            
-            updateProgressForStages(strip, stages, lapsed_time.total_seconds())
-            strip.show()
+        while lapsed_time <= stages_duration:
+    	    #print('*')
+ 	    #print(lapsed_time)
+            #print(stages_duration)
+
             now_time = timedelta(seconds = time.time())
             lapsed_time = now_time - start_time
+            updateProgressForStages(strip, stages, lapsed_time.total_seconds())
+
             time.sleep(1)
 
     except KeyboardInterrupt:
