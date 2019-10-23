@@ -8,13 +8,14 @@
 import time
 from datetime import timedelta
 from neopixel import *
+import argparse
 
-def Color(red, green, blue, white = 0):
-	"""Convert the provided red, green, blue color to a 24-bit color value.
-	Each color component should be a value 0-255 where 0 is the lowest intensity
-	and 255 is the highest intensity.
-	"""
-	return (white << 24) | (red << 16)| (green << 8) | blue
+# def Color(red, green, blue, white = 0):
+# 	"""Convert the provided red, green, blue color to a 24-bit color value.
+# 	Each color component should be a value 0-255 where 0 is the lowest intensity
+# 	and 255 is the highest intensity.
+# 	"""
+# 	return (white << 24) | (red << 16)| (green << 8) | blue
 
 # Morning stages configuration
 BLUE = Color(0, 0, 255)
@@ -50,7 +51,7 @@ class Strip_Mock(object):
         self.STRIP[i] = color
 
     def show(self):
-        print(self.STRIP, end = '\n\n')
+        print(self.STRIP)
 
 def calculateStagesDuration(stages):
     result = 0
@@ -73,12 +74,27 @@ def updateProgressForStages(strip, stages, elapsed_seconds):
                 # strip.setPixelColor(i, 'R')
             strip.show()
 
+def colorWipe(strip, color, wait_ms=50):
+    """Wipe color across display a pixel at a time."""
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, color)
+        strip.show()
+        time.sleep(wait_ms/1000.0)
+
+
 # Main program logic follows:
 if __name__ == '__main__':
+    # Process arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
+    args = parser.parse_args()
+
     # Create NeoPixel object with appropriate configuration.
     strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     # Intialize the library (must be called once before other functions).
     strip.begin()
+
+    # OR
 
     # # Mock Strip
     # strip = Strip_Mock(LED_COUNT)
@@ -90,7 +106,6 @@ if __name__ == '__main__':
     stages.append(Morning_Prep_Stage('Eat and Dress', ORANGE, 'O', 15, 30))
     stages.append(Morning_Prep_Stage('Bathroom', GREEN, 'G', 45, 15))
 
-    # print(STRIP, end = '\n\n')
     initializeStages(strip, stages)
     
     stages_duration = timedelta(seconds = calculateStagesDuration(stages))
@@ -99,9 +114,15 @@ if __name__ == '__main__':
     time.sleep(1)
     now_time = timedelta(seconds = time.time())
     lapsed_time = now_time - start_time
-    while lapsed_time <= stages_duration:            
-        updateProgressForStages(strip, stages, lapsed_time.total_seconds())
-        strip.show()
-        now_time = timedelta(seconds = time.time())
-        lapsed_time = now_time - start_time
-        time.sleep(1)
+
+    try:
+        while lapsed_time <= stages_duration:            
+            updateProgressForStages(strip, stages, lapsed_time.total_seconds())
+            strip.show()
+            now_time = timedelta(seconds = time.time())
+            lapsed_time = now_time - start_time
+            time.sleep(1)
+
+    except KeyboardInterrupt:
+        if args.clear:
+            colorWipe(strip, Color(0,0,0), 10)
