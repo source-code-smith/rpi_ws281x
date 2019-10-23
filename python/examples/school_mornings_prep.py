@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # NeoPixel library strandtest example
-# Author: Tony DiCola (tony@tonydicola.com)
+# Author: Herman Smith (herman@sourcecodesmith.com)
 #
 # Direct port of the Arduino NeoPixel library strandtest example.  Showcases
 # various animations on a strip of NeoPixels.
 
 import time
 from datetime import timedelta
-# from neopixel import *
-import argparse
+from neopixel import *
 
 def Color(red, green, blue, white = 0):
 	"""Convert the provided red, green, blue color to a 24-bit color value.
@@ -41,9 +40,17 @@ class Morning_Prep_Stage(object):
         self.commencement = commencement
         self.duration = duration
 
-STRIP = []
-for i in range(60):
-    STRIP.append(0)
+class Strip_Mock(object):
+    def __init__(self, length):
+        self.STRIP = []
+        for i in range(length):
+            self.STRIP.append(0)
+
+    def setPixelColor(self, i, color):
+        self.STRIP[i] = color
+
+    def show(self):
+        print(self.STRIP, end = '\n\n')
 
 def calculateStagesDuration(stages):
     result = 0
@@ -51,59 +58,50 @@ def calculateStagesDuration(stages):
         result += stage.duration
     return result
 
-def initializeStages(stages):    
+def initializeStages(strip, stages):    
     for stage in stages:
         for i in range(stage.commencement, stage.commencement+stage.duration):
-            STRIP[i] = stage.colorSymbol
+            strip.setPixelColor(i, stage.color)
+            # strip.setPixelColor(i, stage.colorSymbol)
+    strip.show()
 
-def updateProgressForStages(stages, elapsed_seconds):
-    # print(elapsed_seconds)
+def updateProgressForStages(strip, stages, elapsed_seconds):
     for stage in stages:
-        # print(key)
         if elapsed_seconds >= stage.commencement:
             for i in range(stage.commencement, int(elapsed_seconds)):
-                STRIP[i] = 'R'
+                strip.setPixelColor(i, RED)
+                # strip.setPixelColor(i, 'R')
+            strip.show()
 
 # Main program logic follows:
 if __name__ == '__main__':
-    # Process arguments
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-    # args = parser.parse_args()
+    # Create NeoPixel object with appropriate configuration.
+    strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+    # Intialize the library (must be called once before other functions).
+    strip.begin()
 
-    # # Create NeoPixel object with appropriate configuration.
-    # strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
-    # # Intialize the library (must be called once before other functions).
-    # strip.begin()
+    # # Mock Strip
+    # strip = Strip_Mock(LED_COUNT)
 
-    # print ('Press Ctrl-C to quit.')
-    # if not args.clear:
-    #     print('Use "-c" argument to clear LEDs on exit')
+    print ('Press Ctrl-C to quit.')
 
-    try:
-        stages = []
-        stages.append(Morning_Prep_Stage('Wake', BLUE, 'B', 0, 15))
-        stages.append(Morning_Prep_Stage('Eat and Dress', ORANGE, 'O', 15, 30))
-        stages.append(Morning_Prep_Stage('Bathroom', GREEN, 'G', 45, 15))
+    stages = []
+    stages.append(Morning_Prep_Stage('Wake', BLUE, 'B', 0, 15))
+    stages.append(Morning_Prep_Stage('Eat and Dress', ORANGE, 'O', 15, 30))
+    stages.append(Morning_Prep_Stage('Bathroom', GREEN, 'G', 45, 15))
 
-        print(STRIP)
-        initializeStages(stages)
-        print(STRIP)
-        
-        stages_duration = timedelta(seconds = calculateStagesDuration(stages))
-        start_time = timedelta(seconds = time.time())
+    # print(STRIP, end = '\n\n')
+    initializeStages(strip, stages)
+    
+    stages_duration = timedelta(seconds = calculateStagesDuration(stages))
+    start_time = timedelta(seconds = time.time())
 
-        time.sleep(1)
+    time.sleep(1)
+    now_time = timedelta(seconds = time.time())
+    lapsed_time = now_time - start_time
+    while lapsed_time <= stages_duration:            
+        updateProgressForStages(strip, stages, lapsed_time.total_seconds())
+        strip.show()
         now_time = timedelta(seconds = time.time())
         lapsed_time = now_time - start_time
-        while lapsed_time <= stages_duration:            
-            updateProgressForStages(stages, lapsed_time.total_seconds())
-            print(STRIP)
-            now_time = timedelta(seconds = time.time())
-            lapsed_time = now_time - start_time
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        if args.clear:
-            print('clear')
-            # colorWipe(strip, Color(0,0,0), 10)
+        time.sleep(1)
