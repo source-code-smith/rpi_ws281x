@@ -23,7 +23,7 @@ ORANGE = Color(50, 255, 0)
 GREEN = Color(255, 0, 0)
 RED = Color(0, 255, 0)
 
-INTERVAL_DURATION_SECONDS = 1
+INTERVAL_DURATION_SECONDS = 60
 
 # LED strip configuration:
 LED_COUNT      = 60      # Number of LED pixels.
@@ -150,7 +150,8 @@ if __name__ == '__main__':
             time.sleep(INTERVAL_DURATION_SECONDS)
 
         while True:
-            theaterChase(strip, RED)
+            # theaterChase(strip, RED)
+            theaterChaseRainbow(strip)
 
     except KeyboardInterrupt:
         if args.clear:
