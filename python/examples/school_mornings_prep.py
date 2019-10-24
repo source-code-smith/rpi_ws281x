@@ -23,6 +23,8 @@ ORANGE = Color(50, 255, 0)
 GREEN = Color(255, 0, 0)
 RED = Color(0, 255, 0)
 
+INTERVAL_DURATION_SECONDS = 1
+
 # LED strip configuration:
 LED_COUNT      = 60      # Number of LED pixels.
 LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
@@ -81,6 +83,28 @@ def colorWipe(strip, color, wait_ms=50):
         strip.show()
         time.sleep(wait_ms/1000.0)
 
+def theaterChase(strip, color, wait_ms=50, iterations=10):
+    """Movie theater light style chaser animation."""
+    for j in range(iterations):
+        for q in range(3):
+            for i in range(0, strip.numPixels(), 3):
+                strip.setPixelColor(i+q, color)
+            strip.show()
+            time.sleep(wait_ms/1000.0)
+            for i in range(0, strip.numPixels(), 3):
+                strip.setPixelColor(i+q, 0)
+
+
+def theaterChaseRainbow(strip, wait_ms=50):
+    """Rainbow movie theater light style chaser animation."""
+    for j in range(256):
+        for q in range(3):
+            for i in range(0, strip.numPixels(), 3):
+                strip.setPixelColor(i+q, wheel((i+j) % 255))
+            strip.show()
+            time.sleep(wait_ms/1000.0)
+            for i in range(0, strip.numPixels(), 3):
+                strip.setPixelColor(i+q, 0)
 
 # Main program logic follows:
 if __name__ == '__main__':
@@ -108,24 +132,24 @@ if __name__ == '__main__':
 
     initializeStages(strip, stages)
 
-    stages_duration = timedelta(seconds = calculateStagesDuration(stages))
+    stages_duration = timedelta(seconds = calculateStagesDuration(stages)*INTERVAL_DURATION_SECONDS)
     start_time = timedelta(seconds = time.time())
 
-    time.sleep(1)
+    time.sleep(INTERVAL_DURATION_SECONDS)
     now_time = timedelta(seconds = time.time())
     lapsed_time = now_time - start_time
 
     try:
         while lapsed_time <= stages_duration:
     	    #print('*')
- 	    #print(lapsed_time)
-            #print(stages_duration)
 
             now_time = timedelta(seconds = time.time())
             lapsed_time = now_time - start_time
             updateProgressForStages(strip, stages, lapsed_time.total_seconds())
 
-            time.sleep(1)
+            time.sleep(INTERVAL_DURATION_SECONDS)
+
+        theaterChase(strip, RED)
 
     except KeyboardInterrupt:
         if args.clear:
