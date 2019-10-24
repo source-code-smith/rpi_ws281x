@@ -70,8 +70,8 @@ def initializeStages(strip, stages):
 
 def updateProgressForStages(strip, stages, elapsed_seconds):
     for stage in stages:
-        if elapsed_seconds >= stage.commencement:
-            for i in range(stage.commencement, int(elapsed_seconds)):
+        if elapsed_seconds/INTERVAL_DURATION_SECONDS >= stage.commencement:
+            for i in range(stage.commencement, int(elapsed_seconds/INTERVAL_DURATION_SECONDS)):
                 strip.setPixelColor(i, RED)
                 # strip.setPixelColor(i, 'R')
             strip.show()
@@ -149,7 +149,8 @@ if __name__ == '__main__':
 
             time.sleep(INTERVAL_DURATION_SECONDS)
 
-        theaterChase(strip, RED)
+        while True:
+            theaterChase(strip, RED)
 
     except KeyboardInterrupt:
         if args.clear:
