@@ -140,18 +140,14 @@ if __name__ == '__main__':
     lapsed_time = now_time - start_time
 
     try:
-        while lapsed_time <= stages_duration:
-    	    #print('*')
-
-            now_time = timedelta(seconds = time.time())
-            lapsed_time = now_time - start_time
-            updateProgressForStages(strip, stages, lapsed_time.total_seconds())
-
-            time.sleep(INTERVAL_DURATION_SECONDS)
-
         while True:
-            # theaterChase(strip, RED)
-            theaterChaseRainbow(strip)
+            if lapsed_time <= stages_duration:
+                now_time = timedelta(seconds = time.time())
+                lapsed_time = now_time - start_time
+                updateProgressForStages(strip, stages, lapsed_time.total_seconds())
+                time.sleep(INTERVAL_DURATION_SECONDS)
+            else:
+                theaterChase(strip, GREEN, 1000)
 
     except KeyboardInterrupt:
         if args.clear:
