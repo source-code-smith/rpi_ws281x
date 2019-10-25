@@ -147,7 +147,7 @@ if __name__ == '__main__':
                 updateProgressForStages(strip, stages, lapsed_time.total_seconds())
                 time.sleep(INTERVAL_DURATION_SECONDS)
             else:
-                theaterChase(strip, GREEN, 1000)
+                theaterChase(strip, GREEN)
 
     except KeyboardInterrupt:
         if args.clear:
