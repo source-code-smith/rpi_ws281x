@@ -18,6 +18,7 @@ import argparse
 # 	return (white << 24) | (red << 16)| (green << 8) | blue
 
 # Morning stages configuration
+CLEAR = Color(0, 0, 0)
 BLUE = Color(0, 0, 255)
 ORANGE = Color(50, 255, 0)
 GREEN = Color(255, 0, 0)
@@ -72,7 +73,7 @@ def updateProgressForStages(strip, stages, elapsed_seconds):
     for stage in stages:
         if elapsed_seconds/INTERVAL_DURATION_SECONDS >= stage.commencement:
             for i in range(stage.commencement, int(elapsed_seconds/INTERVAL_DURATION_SECONDS)):
-                strip.setPixelColor(i, RED)
+                strip.setPixelColor(i, CLEAR)
                 # strip.setPixelColor(i, 'R')
             strip.show()
 
